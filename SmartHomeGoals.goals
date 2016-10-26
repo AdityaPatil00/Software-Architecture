@@ -1,0 +1,27 @@
+stakeholder goals smartHomeGoals for SmartHome::intelligent
+[
+	goal g1:"Reliability"[
+	description "The smart home system should have a reliable fire detection system due to its life critical application"
+	rationale "as contains important devices like fire control which are going to save lives"
+	stakeholder SmartTechnologies.Mgr
+	]
+	
+	goal g2:"Time Economy"[
+	description "emergency tele-assistance and medical support will be requested to the nearest hospital in case of medical emergency to elderly person"
+	rationale "The communication latency between two components or devices should be as minimum as possible"
+	stakeholder SmartTechnologies.SA 
+	]
+	
+	goal g3:"Safety"[
+	description "The smart home system will detect burglary and will immediately notify the police and the owner of the house"
+	rationale "House safety is of importance and may contain valuables"
+	stakeholder SmartTechnologies.Cust
+	SmartTechnologies.ScExp
+	]
+	
+	goal g4:"Resource Economy"[
+	description "The smart home will have a function that will save the energy of the applications that are not in use"
+	rationale "Valuable resources like Electricity should be saved"
+	stakeholder SmartTechnologies.Cust
+	]
+]

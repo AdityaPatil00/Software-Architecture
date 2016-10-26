@@ -1,0 +1,13 @@
+assurance case SmartHomeAssuranceCase:"Assurance case for the Smart Home" for SmartHome::intelligent[
+
+assurance plan SmartHomeAssurancePlan: "The assurance case for the Smart Home" 
+for SmartHome::intelligent.impl [
+	assure SmartHomePlan
+	issues "this assurance plan is related to the assurance case for Smart Home"
+]
+
+assurance task firstTest:"assurance task for one element" [
+	category normal emergency failure
+	quality safety reliability		
+] 
+]

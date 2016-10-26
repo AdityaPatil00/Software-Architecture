@@ -1,0 +1,100 @@
+
+system requirements smartHomeReq 
+for SmartHome::intelligent
+[
+	val cameraStoredImagesIntensity=40 bit_64_scale
+	val maxLatency=1000ms
+	val smokeDetectorThreshold=40ppm
+	val gasDetectorThreshold=500ppm
+	val maxCallLatency=2ms
+	val minNumberofPeople=1
+	val savedPassword=1characterArray
+	//The values below are for testing purpose
+	val patternIntensity=2
+	val actualNumberofPeople=0
+	val initial patternDatabase=1 matrix
+	val newPassword=1characterArray
+	requirement cameraDetectsBurglary:"Camera detects intrusion"
+	[
+		description this "The camera shall be able to detect burglary using pattern matching techniques through the use of thermal imaging where pattern intensity of the thermal image detected match the intensity of the thermal images stored in the database "
+		compute patternIntensity
+		value predicate patternIntensity ==cameraStoredImagesIntensity
+		rationale "To distinguish intrusion from normal behavior"
+		see goal smartHomeGoals.g3
+	]
+	
+	requirement notificationBurglaryToPolice:"notify Police and Owner"
+	[
+		description this "The intrusion activity is reported to police after pattern matching of the image captured is successful and the notification latency toPoliceLatency and toOwnerLatency is less than maxLatency"
+		compute toPoliceOwnerLatency
+		compute toOwnerLatency
+		value predicate toPoliceOwnerlatency <= maxLatency
+		rationale "To run AntiBurglary system"
+		see goal smartHomeGoals.g2 
+	]
+	
+	requirement fireGasDetection:"Detect the fire or gas leak"
+	[
+		description this "The fire in the house or gas leakage should be detected using smoke and temperature sensors when the actualSmokeDetect and actualGasDetect values exceed the threshold values of Smoke and Gas detectors respectively"
+		compute actualSmokeGasDetect
+		value predicate actualSmokeGasDetect >= smokeDetectorThreshold
+		rationale "To detect hazards and eventually save lives from them"
+		see goal smartHomeGoals.g1 
+	]
+	
+		requirement notifyFireDetection :"notify Fire fighting department and Owner"
+	[
+		description this "The fire/gas break activity is reported to fire fighting department through phone by sending recorded voice and also notify owner so that the owner can reach home and check property damage/loss and the notification latency toFireFightingDeptLatency and toOwnerLatency is less than maxLatency "
+		compute toFireFightingDeptOwnerLatency
+		compute toOwnerLatency
+		value predicate toFireFightingDeptOwnerLatency <= maxLatency
+		rationale "To mitigate fire/gas leak and prevent property/life loss"
+		see goal smartHomeGoals.g2 
+	]
+	
+		requirement emergencyMedicalHelp:"assistance to people should be provided in case medical emergency"
+	[
+		description this "emergency medical help will be provided by contacting the hospital through the telephone and playing the recorded message asking the hospital for an ambulance at the specific location and the actualCallLatency while contacting through telephone would be less than maxCallLatency"
+		compute actualCallLatency
+		value predicate actualCallLatency <= maxCallLatency
+		rationale "To provide immediate medical assistance for elderly"
+		see goal smartHomeGoals.g2 
+	]
+	
+		requirement energySaving:"provide smart switch for appliances when not in use"
+	[
+		description this "Appliances like fan, TV, lights get switched off automatically when the actualNumberofPeople is less than minNumberofPeople thus saving electricity"
+		compute actualNumberofPeople
+		value predicate actualNumberofPeople <= minNumberofPeople
+		rationale "To provide automatic energy saving solutions"
+		see goal smartHomeGoals.g4 
+	]
+	
+		requirement PoliceHome:"System independent requirement wherein police arrives at the owner's place"
+	[
+			description this "On receiving the call to the police station from the Smart Home system"
+			compute PoliceToHomeLatency
+	]
+		
+			requirement FireFightHome:"System independent requirement wherein fire fighting crew arrive at the owner's place"
+	[
+			description this "On receiving the call to the police station from the Smart Home system"
+			compute FireFightToHomeLatency
+	]
+	
+		requirement DatabaseIntegrityCamera:"security requirement wherein the Database consisting patterns should be integrity"
+	[
+			description this "The Database of patterns stored in the Camera"
+			compute	DatabaseIntegrity
+			value predicate actualNumberofPeople <= minNumberofPeople
+				
+	]
+	
+	//Incorporating suggested changes in ATAM evaluation by  
+	requirement ControlsAuthentication:"Security requirement wherein the controls to the equipment should require authentication while logging in"
+	[
+		description this "This compares the typed in password to the stored password"
+		compute savedPassword 
+		value predicate savedPassword==newPassword
+	]
+]

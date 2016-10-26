@@ -1,0 +1,6 @@
+
+property set PS is
+  bool1: aadlboolean => true applies to (system);
+  bool2: aadlboolean => false applies to (system);
+  bool3: aadlboolean applies to (system);
+end PS;

@@ -1,0 +1,125 @@
+verification plan SmartHomePlan for smartHomeReq[
+	description "This is the verification plan for the requirements in smartHomeReq"
+claim cameraDetectsBurglary:"Camera detects the match between the intrusion pattern and stored image pattern" [
+	rationale "This plan verifies the intrusion detection"
+	activities
+	speed_ActTest1:"Test of pattern matching":
+	BurglaryDetection.Burglary_Detected()
+	property values ()
+			[
+				weight 4
+				timeout 5
+			]
+	]
+claim emergencyMedicalHelp [
+	rationale "Test all the functions to facilitate immediate medical help especially for elderly people"
+	activities
+	Detection:"Test if the person in need of medical help has pressed the emergency button":
+	MedicalHelp.EmergencyDetect()
+	
+	Notification:"Notify hospital of emergency":
+	MedicalHelp.notify()
+	
+	HelpArrival:"Arrival of Medical help":
+	MedicalHelp.AmbulanceArrive()
+	
+	property values()
+	[
+		weight 8
+		timeout 2
+	]
+]
+
+claim energySaving [
+	rationale "Test if energy is consumed in the absence of people in the room"
+	activities
+	speed_ActTest2:"Test of number of people in the house is less than the minimum set threshold":
+	SMHomeVerificationMethods.comp(actualNumberofPeople,minNumberofPeople)
+	property values ()
+			[
+				weight 4
+				timeout 3
+			]
+	]
+claim fireGasDetection [
+		activities
+		GasLeakage:"Test used for detection of fire through fire or gas detection":
+		GasLeakageDetection.gasLeakDetect()
+		property values ()
+		[
+			weight 7
+			timeout 1	
+		]
+	]
+claim PoliceHome [
+	activities
+	PoliceArrivesHome:"Test expected to be performed by the police in case of informed theft incident":
+	PoliceHomeArrival.arrivesToemergency()
+]	
+
+claim FireFightHome [
+	activities
+	FireFightingHome:"Test expected to be performed by the police in case of informed theft incident":
+	FireFightingHomeArrival.arrivesToemergency()
+]
+
+claim fireGasDetection [
+		activities
+		SmokeDetection:"Test used for detection of fire through fire or gas detection":
+		SmokeDetection.SmokeDetect()
+		property values ()
+		[
+			weight 7
+			timeout 3	
+		]
+	]
+claim notificationBurglaryToPolice [
+		activities
+	NotificationToPolice:"Test to check if the Smart Home system notifies the Police station of the theft activity":
+	NotifyPolice.NotifyPolice()
+	property values ()
+	[
+		weight 7
+		timeout 2
+	]
+	]
+claim notifyFireDetection [
+		activities
+		NotificationToOwner:"Test to check if Smart Home system notifies the owner of the fire detected by the system":
+		NotifyOwner.Fire()
+		property values ()
+		[
+			weight 4
+			timeout 2
+		]
+	]
+claim notifyFireDetection [
+		activities
+		NotificationToFireFightDept:"Test to check if Smart Home system notifies the owner of the fire detected by the system":
+		NotifyFireFightDept.notify()
+				property values ()
+		[
+			weight 9
+			timeout 2
+		]
+	]
+
+claim DatabaseIntegrityCamera[
+		activities
+]
+claim ControlsAuthentication [
+	activities
+	Authentication:"Test to check if the authentication is actually working":
+	PasswordAuthentication.passwordCheck()
+			property values ()
+			[
+				weight 9
+				timeout 7
+			]
+	]
+	
+	
+
+]
+
+

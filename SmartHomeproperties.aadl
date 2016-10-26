@@ -1,0 +1,9 @@
+property set SmartHomeProperties is
+	Energy_Type: TYPE AADLREAL UNITS SmartHomeProperties::Energy_Units;
+  	Energy_Units: TYPE UNITS (kWh);
+  	Temperature_Type: TYPE AADLREAL UNITS SmartHomeProperties::Temperature_Units;
+  	Temperature_Units: TYPE UNITS (celsius);
+  	Frequency_Type: TYPE AADLREAL UNITS SmartHomeProperties::Frequency_Units;
+  	Frequency_Units: TYPE UNITS (MHz);
+  	SmartHomeCmds: enumeration (normal,off,emergency) applies to (data, port, system);
+end SmartHomeProperties;

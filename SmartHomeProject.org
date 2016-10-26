@@ -1,0 +1,25 @@
+organization SmartTechnologies
+	stakeholder Mgr
+	[
+		full name "Manager"
+	]
+	
+	stakeholder SE
+	[
+		full name "System Engineer"
+	]
+	
+	stakeholder SA
+	[
+		full name "Software Architect"
+	]
+	
+	stakeholder Cust
+	[
+		full name "Customer"
+	]
+	
+	stakeholder ScExp
+	[
+		full name "Security Expert"
+	]	

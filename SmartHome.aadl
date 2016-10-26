@@ -1,0 +1,371 @@
+package SmartHome
+public 
+	with SEI,securityProperties;
+	with data_types;
+with EMV2;
+	data Simple
+		properties
+			securityProperties::dataItemType=>4.0;
+			securityProperties::dataItemAccessRights=>4.0;
+			SEI::PowerBudget=>2.0kW;		
+	end Simple;
+
+
+	system intelligent
+		features
+			receivedNotifications: in data port data_types::file {securityProperties::entryExitPointPrivileges=>5.0;securityProperties::entryExitPointAccessRights=>3.0;};
+			data_in:in data port;
+			data_out:out data port;
+	end intelligent;
+	
+	system implementation intelligent.impl
+		subcomponents
+			Camera			:	device Camera.impl {Classifier_Substitution_Rule => Type_Extension;};
+			Controller		:	system Controller.impl {Classifier_Substitution_Rule => Type_Extension;}; 
+			Phone			:	device Phone.impl {Classifier_Substitution_Rule => Type_Extension;};
+			sensor			:	system sensor.impl {Classifier_Substitution_Rule => Type_Extension;};
+			Actuators		:	system Actuators.impl {Classifier_Substitution_Rule => Type_Extension;};
+		   camera_detects_intrusion : process camera_detects_intrusion.impl {Classifier_Substitution_Rule => Type_Extension;};
+		   medical_emergencysignal_received:process medical_emergencysignal_received.impl {Classifier_Substitution_Rule => Type_Extension;};
+		   fire_gas_detection:process fire_gas_detection.impl {Classifier_Substitution_Rule => Type_Extension;};
+		   item:data Simple;	
+		   DataFilter	:	process DataFilter.impl;	
+		connections
+			cameraToController			:	port Camera.data_out->Controller.data_in {securityProperties::Channel_Protocol=>8.0;securityProperties::Channel_AccessRights=>7.0;};
+			controllerToPhone			:	port Controller.data_out->Phone.data_in {securityProperties::Channel_Protocol=>8.0;securityProperties::Channel_AccessRights=>7.0;};
+			controllerToActuators		:	port Controller.data_out->Actuators.data_in {securityProperties::Channel_Protocol=>8.0;securityProperties::Channel_AccessRights=>7.0;};
+			sensorToController			:	port Sensor.data_out->Controller.data_in {securityProperties::Channel_Protocol=>8.0;securityProperties::Channel_AccessRights=>7.0;};	
+		flows
+			cameraToControllerFlow			: 	end to end flow Camera.Flowsource->cameraToController->Controller.Flowsink;  
+			controllerToPhoneFlow			: 	end to end flow Controller.Flowsource->controllerToPhone->Phone.Flowsink; 
+			controllerToActuatorsFlow		: 	end to end flow Controller.Flowsource->controllerToActuators->Actuators.Flowsink; 
+			sensorToControllerFlow			: 	end to end flow Sensor.Flowsource->sensorToController->Controller.Flowsink; 
+			
+		properties
+			latency	=>	5 ms .. 10 ms applies to cameraToControllerFlow,sensorToControllerFlow;
+			latency	=>	2 ms .. 5 ms applies to controllerToPhoneFlow;
+			SEI::PowerBudget=>1.2 kW;
+			
+		annex Resolute{**
+				
+			prove(print_aadl(this))
+			prove (SystemWideReq1())
+			prove (SystemWideReq2())
+			prove (SystemWideReq3())
+			prove (Security_Features(this))
+			prove (Security_Connections(this))
+			prove (Security_Data(this))
+		**};	
+		
+		annex EMV2 {**
+			use types error_library; 
+			use behavior error_library::stateMachine;
+			
+			composite error behavior
+			states
+			[Controller.Failed]->Failed;
+			[sensor.Failed and Actuators.Failed]->Failed;
+			[sensor.Operational and Controller.Operational]->Operational;
+			[Camera.Operational and Controller.Operational and Phone.Operational]->Operational;
+			end composite;	
+			
+			
+						properties	
+				emv2::hazards => 
+					([	failure => "InvalidValue";
+						description => "Invalid amount of the gas or smoke detected vy the gas/smoke sensor";
+					])
+					applies to sensor.data_out.invalidvalue;
+			**};
+				
+		annex behavior_specification 
+		{**states
+  off : initial state ;
+  engaged : state ;
+  normal : state ;
+  failure : state ;
+  emergency : state ;
+transitions
+  off -[]-> normal ;
+  normal -[]-> engaged ;
+  engaged -[]-> failure ;
+  normal -[]-> failure ;
+  normal -[]-> emergency ;
+  emergency -[]-> failure ;
+  failure -[]-> off ;
+**};		
+		
+		end intelligent.impl;
+		
+		system sensor	
+			features
+				data_out	:	out data port;
+				data_in		:	in data port;
+				
+			flows
+				Flowsource	:	flow source data_out;	
+				
+			properties
+				latency=>5ms .. 10ms applies to Flowsource;
+				SEI::PowerBudget=>1.2 kW;
+		
+			annex EMV2 {**
+			use types     error_library;
+			use behavior  error_library::stateMachine;
+			
+		**};
+				
+		end sensor;
+		
+		system implementation sensor.impl
+			subcomponents
+			Smoke	:	device Smoke.impl;
+			Gas		:	device Gas.impl;
+			fire_gas_detection:process fire_gas_detection.impl;
+		end sensor.impl;
+		
+		system Actuators
+			features
+				data_in		:	in data port;
+			flows
+				Flowsink	:	flow sink data_in;	
+			
+			properties	
+			latency=>5ms .. 10ms applies to Flowsink;
+			SEI::PowerBudget=>2.0 kW;
+		
+				annex EMV2 {**
+			use types     error_library;
+			use behavior  error_library::stateMachine;
+			
+		**};
+			
+		end Actuators;
+		
+		system implementation Actuators.impl
+			subcomponents
+			smartswitch_appliances:process smartswitch_appliances.impl;
+			fire_extinguish:process fire_extinguish.impl;
+		end Actuators.impl;
+		
+		device Smoke	
+			features
+			data_in		: in data port;
+			data_out	: out data port;
+			
+			flows
+			Flowsource	: flow source data_out;
+			Flowsink	: flow sink data_in;	
+			
+			properties
+			latency=>5ms .. 10ms applies to Flowsource,Flowsink;
+			SEI::PowerBudget=>1.0 kW;
+			
+			annex EMV2 {**
+			use types     error_library;
+			use behavior  error_library::stateMachine;
+			
+		**};		
+		end Smoke;
+		
+		device implementation Smoke.impl
+		end Smoke.impl;
+		
+		device Gas	
+			features
+				data_in		:	in data port;
+				data_out	:	out data port;
+			
+			flows
+				Flowsource	:	flow source data_out;
+				Flowsink	:	flow sink data_in;
+				
+			properties	
+			latency=>5ms .. 10ms applies to Flowsource,Flowsink;
+			SEI::PowerBudget=>1.0 kW;			
+		end Gas;
+		
+		device implementation Gas.impl
+		end Gas.impl;
+	
+	process DataFilter
+		features
+			data_in: in data port;
+			data_out:out data port;
+		
+		flows
+			Flowsource :flow source data_out;
+			Flowsink	:flow sink data_in;
+	end DataFilter;
+	
+	process implementation DataFilter.impl
+	end DataFilter.impl;
+		
+	device Camera 
+		features
+			data_out	:	out data port;
+			
+		flows
+			Flowsource	:	flow source data_out;
+		properties	
+			latency=>2ms .. 5ms applies to Flowsource;
+			SEI::PowerBudget=>1.2 kW;
+			
+		annex EMV2 {**
+			use types     error_library;
+			use behavior  error_library::stateMachine;
+			
+		**};		
+	end Camera;	
+	
+	device implementation Camera.impl
+	end Camera.impl;
+	system Controller 
+		features
+			data_in		:	in data port;
+			data_out	:	out data port;
+			
+		flows
+			Flowsource	:	flow source data_out;
+			Flowsink	:	flow sink data_in;	
+			
+		properties
+			SEI::SecurityLevel => 6;
+			SEI::PowerBudget=>1.2 kW;
+			
+				annex EMV2 {**
+			use types     error_library;
+			use behavior  error_library::stateMachine;
+			
+		**};
+	end Controller;	
+	
+	system implementation Controller.impl
+	end Controller.impl;
+		
+	device Phone
+		features
+			data_in		:	in data port;
+			data_out	:	out data port;    		
+		flows
+			Flowsink	:	flow sink data_in;
+		properties
+			latency=> 1ms .. 2 ms applies to Flowsink;
+			SEI::PowerBudget=>1.2 kW;
+		
+		annex EMV2 {**
+		use types     error_library;
+		use behavior  error_library::stateMachine;
+			
+		**};	
+	end Phone;
+
+	device implementation Phone.impl
+	end Phone.impl;
+	
+	process camera_detects_intrusion
+		features
+			data_out : out data port;
+	end camera_detects_intrusion;
+	
+	process implementation camera_detects_intrusion.impl
+		subcomponents
+		pattern_matching:thread pattern_matching.impl;	
+		notify_owner_police:thread notify_owner_police;
+		properties
+			SEI::PowerBudget=>1.2 kW;
+	end camera_detects_intrusion.impl;
+	
+	thread pattern_matching
+		features
+			data_in:in data port;
+			data_out:out data port;
+		properties
+			period=>10ms;
+			SEI::PowerBudget=>0.5 kW;
+	end pattern_matching;
+	
+	thread implementation pattern_matching.impl
+	end pattern_matching.impl;
+	
+	thread notify_owner_police
+		features
+		 Threadout:out data port;
+		flows
+			Flowsource:flow source Threadout;
+		 	properties
+			SEI::PowerBudget=>0.5 kW;
+			latency=>1ms .. 3ms applies to Flowsource ;
+			period=>10ms;
+	end notify_owner_police;
+	
+	thread implementation notify_owner_police.impl
+	end notify_owner_police.impl;
+	
+	
+	process fire_gas_detection
+		features
+			data_in : in data port;
+		properties
+			SEI::PowerBudget=>1.2 kW;
+	end fire_gas_detection;
+	
+	process implementation fire_gas_detection.impl
+		subcomponents
+			notify_firefighting_dept:thread notify_firefighting_dept;
+	end fire_gas_detection.impl;
+	 
+	 thread notify_firefighting_dept
+	 	features
+	 		data_in:in data port;
+	 	properties
+			SEI::PowerBudget=>0.5 kW;
+			period=>10ms;
+	 end notify_firefighting_dept;
+	 	
+	 process medical_emergencysignal_received
+	 	features
+	 		data_in : in data port;
+	 		data_out :out data port;	
+	 	properties
+			SEI::PowerBudget=>1.5 kW;
+	 end medical_emergencysignal_received;
+	 	
+	 process implementation medical_emergencysignal_received.impl
+	 	subcomponents
+	 	notify_hospital:thread notify_hospital.impl;	
+	 end medical_emergencysignal_received.impl;
+	 
+	 thread notify_hospital
+	 	features
+	 		data_out : out data port;
+	 		properties
+			SEI::PowerBudget=>0.5 kW;
+			period=>10 ms;
+	 end notify_hospital;
+	 
+	 thread implementation notify_hospital.impl
+	 end notify_hospital.impl;
+	
+	process fire_extinguish
+		features
+			data_out :out data port;
+		properties
+		SEI::PowerBudget=>0.5 kW;
+	end fire_extinguish;
+	
+	process implementation fire_extinguish.impl
+		
+	end fire_extinguish.impl;
+	 
+	 process smartswitch_appliances	
+	 	features
+	 		data_in:in data port;
+	 		data_out:out data port;
+	 	 properties
+			SEI::PowerBudget=>1.5 kW;
+	 end smartswitch_appliances;
+	 
+	 process implementation smartswitch_appliances.impl	
+	 end smartswitch_appliances.impl;
+end SmartHome;

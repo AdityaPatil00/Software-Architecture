@@ -1,0 +1,85 @@
+verification methods BurglaryDetection: "Detects burglary"[
+	method Burglary_Detected (): "To test the requirement"[
+		resolute Security_Features
+		description "Function for detection of Burglary"
+	]
+]
+
+verification methods GasLeakageDetection: "Detects the leak of gas"[
+	method gasLeakDetect (): "To test the gasLeak requirement"[
+		resolute Security_Features
+		description "Function for detection of GasLeakage"
+	]
+]
+
+verification methods SmokeDetection: "Detects the leak of gas"[
+	method SmokeDetect (): "To test the Smoke detection requirement"[
+		resolute Security_Features
+		description "Function that senses smoke in the atmosphere over a certain threshold"
+	]
+]
+verification methods NotifyPolice: "Notifies the police of the theft activity"[
+	method NotifyPolice (): "To test if the theft detected notification reach the Police station"[
+		resolute Security_Connections
+		description "Function that senses smoke in the atmosphere over a certain threshold"
+	]
+]
+verification methods NotifyOwner: "Notifies the Owner"[
+	method Fire (): "To test if Owner is notified about the Fire accident"[
+		resolute Security_Connections
+		description "Function that notifies the owner immediately about the fire accident through the secure connection"
+	]
+		method Theft (): "Notifies the police of the theft activity"[
+		resolute Security_Connections
+		description "Function that notifies owner about the theft activity through the use of secure communication"
+	]
+	
+]
+verification methods PoliceHomeArrival:"Methods describing arrival of Police"[
+	 method arrivesToemergency():"Police arrive at the place of crime"[
+		manual AvoidBurglary
+		description "Manual function in which the Police on receiving a call from the Smart Home system immediately arrives at the place where theft has taken place"
+	]
+]
+verification methods FireFightingHomeArrival:"Methods describing arrival of Fire fighting department"[
+	 method arrivesToemergency():"Arrival of fire fighting crew for fire extinguishing purpose"[
+		manual ArrivesImmediatelyForHelp
+		description "Manual function in which the Fire Fighting Department on receiving a call from the Smart Home system immediately arrives at the place where Fire has taken place"
+	]
+]
+verification methods NotifyFireFightDept:"Contains methods to notify the Fire Fighting department requesting for emergency help"[
+	 method notify():"Notifies"[
+		resolute Security_Connections
+		description "Function that notifies the fire fighting department about the Fire accident"
+	]
+]
+
+verification methods PasswordAuthentication:"Contains methods to authenticate the system's controls through password checking"[
+	 method passwordCheck():"ChecksPassword"[
+		resolute Security_Connections
+		description "Function that compares the stored password to the typed in password "
+	]
+]
+
+
+verification methods MedicalHelp:"Contains methods facilitating emergency medical help"[
+	 method EmergencyDetect():"Notifies"[
+		manual VictimRequestMedicalHelp 
+		description "Function in which the user just has to press a button for medical help"
+	]
+	 method notify():"Notifies"[
+		resolute Security_Connections
+		description "Function that notifies the Hospital of an emergency"
+	]
+	method AmbulanceArrive():"The ambulance arrives as soon as it receives the request from the person in need of medical help"[
+		manual AmbulanceArrives
+		description "Function in which the Ambulance arrives immediately for rescue"
+	]
+]
+
+verification methods Database:"Contains methods that work on the database and data items in the system"[
+	method DatabaseIntegrityCamera():"Checks database integrity in camera attached controller"[
+	resolute Security_Data
+	description "Checks the integrity of the database containing patterns in the Controller attached to the camera used for pattern matching "
+	]
+] 
